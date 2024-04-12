@@ -3,6 +3,9 @@
 import logging
 from typing import List
 import re
+import os
+import mysql.connector
+import csv
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 class RedactingFormatter(logging.Formatter):
@@ -49,3 +52,23 @@ def get_logger() -> logging.Logger:
     sh.setFormatter(RedactingFormatter(PII_FIELDS))
     logger.addHandler(sh)
     return logger
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """ connect to MySQL database """
+    return mysql.connector.connect(
+        host=os.getenv("PERSONAL_DATA_DB_HOST", "root"),
+        database=os.getenv("PERSONAL_DATA_DB_NAME"),
+        user=os.getenv("PERSONAL_DATA_DB_USERNAME", "localhost"),
+        password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),)
+
+
+if __name__ == "__main__":
+    con = get_db()
+    users = con.cursor()
+    users.execute("SELECT CONCAT('name=', name, ';ssn=', ssn, ';ip=', ip, \
+        ';user_agent', user_agent, ';') AS message FROM users;")
+    formatter = RedactingFormatter(fields=PII_FIELDS)
+    logger = get_logger()
+
+    for user in users:
+        logger.log(logging.INFO, user[0])
