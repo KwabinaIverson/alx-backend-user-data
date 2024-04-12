@@ -61,8 +61,8 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         user=os.getenv("PERSONAL_DATA_DB_USERNAME", "localhost"),
         password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),)
 
-
-if __name__ == "__main__":
+def main():
+    """Main Function"""
     con = get_db()
     users = con.cursor()
     users.execute("SELECT CONCAT('name=', name, ';ssn=', ssn, ';ip=', ip, \
@@ -72,3 +72,7 @@ if __name__ == "__main__":
 
     for user in users:
         logger.log(logging.INFO, user[0])
+    
+
+if __name__ == "__main__":
+    main()
