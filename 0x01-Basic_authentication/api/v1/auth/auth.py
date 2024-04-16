@@ -6,7 +6,8 @@ from typing import List, TypeVar
 
 
 class Auth():
-    @classmethod
+    """Auth class"""
+
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """Handles authentication.
         Args:
@@ -19,7 +20,6 @@ class Auth():
         # now, you don’t need to take care of them
         return False
 
-    @classmethod
     def authorization_header(self, request=None) -> str:
         """Authorization header.
         Arg:
@@ -30,7 +30,6 @@ class Auth():
         # Return None for now
         return None
 
-    @classmethod
     def current_user(self, request=None) -> TypeVar('User'):
         """Current user.
         Arg:
