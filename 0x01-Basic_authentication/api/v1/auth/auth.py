@@ -16,9 +16,14 @@ class Auth():
         Return:
             - Bool (True/False)
         """
-        # returns False - path and excluded_paths will be used later,
-        # now, you don’t need to take care of them
-        return False
+        if path is None or excluded_paths is None or not len(excluded_paths):
+            return True
+        if path[-1] != '/':
+            path += '/'
+        for ex_path in excluded_paths:
+            if path[:ex_path.find('*')] in ex_path[:expath.find('*')]:
+                return False
+        return True
 
     def authorization_header(self, request=None) -> str:
         """Authorization header.
@@ -27,8 +32,9 @@ class Auth():
         Return:
             - String
         """
-        # Return None for now
-        return None
+        if not request:
+            return None
+        return request.headers.get('Authorization')
 
     def current_user(self, request=None) -> TypeVar('User'):
         """Current user.
@@ -39,3 +45,9 @@ class Auth():
         """
         # Return None for now
         return None
+
+    def session_cookie(self, request=None):
+        """Return a cookie value from a request
+        """
+        if request:
+            return request.cookies.get(getenv('SESSION_NAME'))
