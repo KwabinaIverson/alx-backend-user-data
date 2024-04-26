@@ -8,7 +8,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from user import Base, User
+from sqlalchemy.orm.exc import NoResultFound
+from typing import TypeVar
+from sqlalchemy.exc import InvalidRequestError
 
+
+DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
 
 class DB:
     """DB class
@@ -47,3 +52,29 @@ class DB:
         self._session.add(new_user)
         self._session.commit()
         return new_user
+    
+    def find_user_by(self, **kwargs) -> User:
+        """find user by some arguments
+        Arg:
+            **kwargs: Known arguments
+        Returns:
+            User: user found or raise error
+        """
+        user = self._session.query(User).filter_by(**kwargs).first()
+        if not user:
+            raise NoResultFound
+        return user
+    
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Update user
+
+        Args:
+            user_id (int): id of user
+        """
+        user = self.find_user_by(id=user_id)
+        for key, val in kwargs.items():
+            if key not in DATA:
+                raise ValueError
+            setattr(user, key, val)
+        self._session.commit()
+        return None
